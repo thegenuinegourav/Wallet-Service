@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/WalletService/controller"
+	"github.com/WalletService/cron"
 	"github.com/WalletService/db"
 	router "github.com/WalletService/http"
 	"github.com/WalletService/repository"
@@ -14,6 +15,7 @@ var (
 	httpRouter 	router.IRouter
 	gormDb		db.IDatabaseEngine
 	gDb			*gorm.DB
+	reportCron  cron.IReportCron
 )
 
 // User
@@ -45,6 +47,7 @@ func main() {
 	initUserServiceContainer()
 	initWalletServiceContainer()
 	initTransactionServiceContainer()
+	initCron()
 	httpRouter.SERVE("8080")
 }
 
@@ -87,4 +90,9 @@ func initTransactionServiceContainer() {
 	httpRouter.GET("/wallet/{id}/transaction", transactionController.GetTransactionsByWalletId)
 	httpRouter.POST("/wallet/{id}/transaction", transactionController.PostTransaction)
 	httpRouter.PUT("/transaction/active", transactionController.UpdateActiveTransactions)
+}
+
+func initCron() {
+	reportCron = cron.NewReportCron(transactionService)
+	reportCron.StartReportCron()
 }
