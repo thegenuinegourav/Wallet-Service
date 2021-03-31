@@ -1,21 +1,24 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"github.com/WalletService/controller"
-	"github.com/WalletService/cron"
+	"github.com/WalletService/scheduler"
 	"github.com/WalletService/db"
 	router "github.com/WalletService/http"
 	"github.com/WalletService/repository"
 	"github.com/WalletService/service"
 	"github.com/jinzhu/gorm"
 	"net/http"
+	"github.com/go-redis/redis/v8"
 )
 
 var (
-	httpRouter 	router.IRouter
-	gormDb		db.IDatabaseEngine
-	gDb			*gorm.DB
-	reportCron  cron.IReportCron
+	httpRouter router.IRouter
+	gormDb     db.IDatabaseEngine
+	gDb        *gorm.DB
+	reportCron scheduler.IReportCron
 )
 
 // User
@@ -93,6 +96,39 @@ func initTransactionServiceContainer() {
 }
 
 func initCron() {
-	reportCron = cron.NewReportCron(transactionService)
+	reportCron = scheduler.NewReportCron(transactionService)
 	reportCron.StartReportCron()
+	ExampleClient()
+}
+
+var ctx = context.Background()
+
+func ExampleClient() {
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+
+	err := rdb.Set(ctx, "key", "value", 0).Err()
+	if err != nil {
+		panic(err)
+	}
+
+	val, err := rdb.Get(ctx, "key").Result()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("key", val)
+
+	val2, err := rdb.Get(ctx, "key2").Result()
+	if err == redis.Nil {
+		fmt.Println("key2 does not exist")
+	} else if err != nil {
+		panic(err)
+	} else {
+		fmt.Println("key2", val2)
+	}
+	// Output: key value
+	// key2 does not exist
 }

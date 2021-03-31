@@ -1,10 +1,9 @@
-package cron
+package scheduler
 
 import (
 	"fmt"
 	"github.com/WalletService/service"
-	. "github.com/robfig/cron"
-	"github.com/robfig/cron/v3"
+	"github.com/robfig/cron"
 	"os"
 	"sync"
 	"log"
@@ -12,7 +11,7 @@ import (
 )
 
 type IReportCron interface {
-	StartReportCron() *Cron
+	StartReportCron() *cron.Cron
 }
 
 type reportcron struct {}
@@ -34,12 +33,12 @@ func NewReportCron(service service.ITransactionService) IReportCron {
 	return c
 }
 
-func (c *reportcron) StartReportCron() *Cron {
+func (c *reportcron) StartReportCron() *cron.Cron {
 	mCron := cron.New()
 	//_, err := mCron.AddFunc("0 9 * * *", fetchReport)
-	_, err := mCron.AddFunc("@every 30s", fetchReport)
+	err := mCron.AddFunc("@every 30s", fetchReport)
 	if err != nil {
-		log.Println("Something went wrong with setting up the cron, error : ", err)
+		log.Println("Something went wrong with setting up the scheduler, error : ", err)
 	}
 	mCron.Start()
 	return mCron
