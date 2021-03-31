@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/WalletService/cache"
 	"github.com/WalletService/controller"
 	"github.com/WalletService/scheduler"
 	"github.com/WalletService/db"
@@ -30,6 +31,7 @@ var (
 
 // Wallet
 var (
+	walletCache         cache.IWalletCache
 	walletRepository 	repository.IWalletRepository
 	walletService		service.IWalletService
 	walletController	controller.IWalletController
@@ -47,11 +49,22 @@ func main() {
 	gormDb = db.NewGormDatabase()
 	gDb = gormDb.GetDatabase()
 	gormDb.RunMigration()
+	initCachingLayer()
 	initUserServiceContainer()
 	initWalletServiceContainer()
 	initTransactionServiceContainer()
 	initCron()
+
 	httpRouter.SERVE("8080")
+}
+
+func initCachingLayer() {
+	cacheEngine := cache.NewCache("localhost:6379", "", 0)
+	cacheEngine.GetCacheClient()
+	if err := cacheEngine.CheckConnection(); err != nil {
+		panic(err)
+	}
+	walletCache = cache.NewWalletCache(cacheEngine, 0)
 }
 
 func initUserServiceContainer() {
@@ -68,7 +81,7 @@ func initUserServiceContainer() {
 
 func initWalletServiceContainer() {
 	walletRepository = repository.NewWalletRepository(gDb)
-	walletService = service.NewWalletService(walletRepository, userService)
+	walletService = service.NewWalletService(walletRepository, userService, walletCache)
 	walletController = controller.NewWalletController(walletService)
 
 	httpRouter.GET("/user/{id}/wallet", func(w http.ResponseWriter, r *http.Request) {
@@ -98,7 +111,6 @@ func initTransactionServiceContainer() {
 func initCron() {
 	reportCron = scheduler.NewReportCron(transactionService)
 	reportCron.StartReportCron()
-	ExampleClient()
 }
 
 var ctx = context.Background()

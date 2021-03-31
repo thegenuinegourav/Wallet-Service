@@ -2,8 +2,9 @@ package service
 
 import (
 	"errors"
-	"github.com/WalletService/repository"
+	"github.com/WalletService/cache"
 	. "github.com/WalletService/model"
+	"github.com/WalletService/repository"
 )
 
 type IWalletService interface{
@@ -21,11 +22,13 @@ type walletService struct {}
 var (
 	walletRepository repository.IWalletRepository
 	iUserService IUserService
+	walletCache  cache.IWalletCache
 )
 
-func NewWalletService(repository repository.IWalletRepository, iService IUserService) IWalletService {
+func NewWalletService(repository repository.IWalletRepository, iService IUserService, iCache cache.IWalletCache) IWalletService {
 	walletRepository = repository
 	iUserService = iService
+	walletCache = iCache
 	return &walletService{}
 }
 
@@ -33,7 +36,18 @@ func (walletService *walletService) GetWalletService(id int, isUserId bool) (*Wa
 	if isUserId {
 		return walletRepository.GetWalletByUserId(id)
 	}
-	return walletRepository.GetWalletById(id)
+	// Caching available only on walletId
+	var wallet *Wallet
+	wallet = walletCache.Get(id)
+	if wallet == nil {
+		w, err := walletRepository.GetWalletById(id)
+		if err != nil {
+			return nil, err
+		}
+		walletCache.Set(id, w)
+		wallet = w
+	}
+	return wallet, nil
 }
 
 func (walletService *walletService) PostWalletService(wallet *Wallet, userID int) (*Wallet, error) {
@@ -43,10 +57,18 @@ func (walletService *walletService) PostWalletService(wallet *Wallet, userID int
 	}
 	wallet.UserID = uint(userID)
 	wallet.User = *user
-	return walletRepository.CreateWallet(wallet)
+	walletCreated, err := walletRepository.CreateWallet(wallet)
+	if err != nil {
+		return nil, err
+	}
+	// post this newly created wallet into cache
+	walletCache.Set(int(walletCreated.ID), walletCreated)
+	return walletCreated, nil
 }
 
 func (walletService *walletService) UpdateWalletService(updatedWallet *Wallet) (*Wallet, error) {
+	// post this newly updated wallet into cache
+	walletCache.Set(int(updatedWallet.ID), updatedWallet)
 	return walletRepository.UpdateWallet(updatedWallet)
 }
 

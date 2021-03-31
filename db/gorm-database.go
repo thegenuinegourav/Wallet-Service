@@ -35,6 +35,7 @@ func InitDatabase() {
 	}else {
 		log.Println("Database connection established!")
 	}
+	log.Println("MySql connection running on port 3306")
 	gClient = db
 }
 
