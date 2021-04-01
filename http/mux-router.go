@@ -27,6 +27,10 @@ func NewMuxRouter() IRouter {
 	return mR
 }
 
+func (r *muxRouter) ADDVERSION(uri string) {
+	r.client = r.client.PathPrefix(uri).Subrouter()
+}
+
 func (r *muxRouter) GET(uri string, f func(w http.ResponseWriter, r *http.Request)) {
 	r.client.HandleFunc(uri,f).Methods("GET")
 }

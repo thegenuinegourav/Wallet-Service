@@ -46,6 +46,7 @@ var (
 
 func main() {
 	httpRouter = router.NewMuxRouter()
+	httpRouter.ADDVERSION("/api/v1")
 	gormDb = db.NewGormDatabase()
 	gDb = gormDb.GetDatabase()
 	gormDb.RunMigration()
@@ -54,7 +55,6 @@ func main() {
 	initWalletServiceContainer()
 	initTransactionServiceContainer()
 	initCron()
-
 	httpRouter.SERVE("8080")
 }
 

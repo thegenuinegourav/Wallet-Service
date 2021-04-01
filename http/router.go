@@ -8,4 +8,5 @@ type IRouter interface {
 	PUT(uri string, f func(w http.ResponseWriter, r *http.Request))
 	DELETE(uri string, f func(w http.ResponseWriter, r *http.Request))
 	SERVE(port string)
+	ADDVERSION(uri string)
 }
