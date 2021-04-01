@@ -3,6 +3,7 @@ package controller
 import (
 	"database/sql"
 	"encoding/json"
+	"github.com/WalletService/cache"
 	"github.com/WalletService/service"
 	. "github.com/WalletService/model"
 	"github.com/gorilla/mux"
@@ -25,10 +26,12 @@ type transactionController struct{}
 
 var (
 	transactionService service.ITransactionService
+	transactionIdempotentCache cache.ITransactionIdempotentCache
 )
 
-func NewTransactionController(service service.ITransactionService) ITransactionController {
+func NewTransactionController(service service.ITransactionService, idempotent cache.ITransactionIdempotentCache) ITransactionController {
 	transactionService = service
+	transactionIdempotentCache = idempotent
 	return &transactionController{}
 }
 
@@ -91,6 +94,17 @@ func (transactionController *transactionController) GetActiveTransactions(w http
 }
 
 func (transactionController *transactionController) PostTransaction(w http.ResponseWriter, r *http.Request) {
+	// check for x-idempotency-key
+	key, err := transactionIdempotentCache.GetIdempotencyKey(r)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	// if this request is not unique, return with idempotent transaction result
+	if idempotentTransaction := transactionIdempotentCache.Get(key); idempotentTransaction != nil {
+		respondWithJSON(w, http.StatusCreated, idempotentTransaction)
+		return
+	}
 	var transaction Transaction
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&transaction); err != nil {
@@ -111,6 +125,8 @@ func (transactionController *transactionController) PostTransaction(w http.Respo
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+	// Record this request with x-idempotency-key for certain expiry
+	transactionIdempotentCache.Set(key, res)
 	respondWithJSON(w, http.StatusCreated, res)
 }
 

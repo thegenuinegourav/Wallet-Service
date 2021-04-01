@@ -1,18 +1,15 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	"github.com/WalletService/cache"
 	"github.com/WalletService/controller"
-	"github.com/WalletService/scheduler"
 	"github.com/WalletService/db"
 	router "github.com/WalletService/http"
 	"github.com/WalletService/repository"
+	"github.com/WalletService/scheduler"
 	"github.com/WalletService/service"
 	"github.com/jinzhu/gorm"
 	"net/http"
-	"github.com/go-redis/redis/v8"
 )
 
 var (
@@ -39,6 +36,7 @@ var (
 
 // Transaction
 var (
+	transactionIdempotentCache cache.ITransactionIdempotentCache
 	transactionRepository 	repository.ITransactionRepository
 	transactionService		service.ITransactionService
 	transactionController	controller.ITransactionController
@@ -64,7 +62,14 @@ func initCachingLayer() {
 	if err := cacheEngine.CheckConnection(); err != nil {
 		panic(err)
 	}
-	walletCache = cache.NewWalletCache(cacheEngine, 0)
+	walletCache = cache.NewWalletCache(cacheEngine, 0)		// 0 means no expiry date
+
+	cacheEngine2 := cache.NewCache("localhost:6379", "", 1)
+	cacheEngine2.GetCacheClient()
+	if err := cacheEngine2.CheckConnection(); err != nil {
+		panic(err)
+	}
+	transactionIdempotentCache = cache.NewTransactionIdempotentCache(cacheEngine2, 12)
 }
 
 func initUserServiceContainer() {
@@ -98,7 +103,7 @@ func initWalletServiceContainer() {
 func initTransactionServiceContainer() {
 	transactionRepository = repository.NewTransactionRepository(gDb)
 	transactionService = service.NewTransactionService(transactionRepository, walletService)
-	transactionController = controller.NewTransactionController(transactionService)
+	transactionController = controller.NewTransactionController(transactionService, transactionIdempotentCache)
 
 	httpRouter.GET("/transaction", transactionController.GetTransactions)
 	httpRouter.GET("/transaction/active", transactionController.GetActiveTransactions)
@@ -111,36 +116,4 @@ func initTransactionServiceContainer() {
 func initCron() {
 	reportCron = scheduler.NewReportCron(transactionService)
 	reportCron.StartReportCron()
-}
-
-var ctx = context.Background()
-
-func ExampleClient() {
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
-	})
-
-	err := rdb.Set(ctx, "key", "value", 0).Err()
-	if err != nil {
-		panic(err)
-	}
-
-	val, err := rdb.Get(ctx, "key").Result()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("key", val)
-
-	val2, err := rdb.Get(ctx, "key2").Result()
-	if err == redis.Nil {
-		fmt.Println("key2 does not exist")
-	} else if err != nil {
-		panic(err)
-	} else {
-		fmt.Println("key2", val2)
-	}
-	// Output: key value
-	// key2 does not exist
 }

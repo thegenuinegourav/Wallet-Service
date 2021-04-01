@@ -27,7 +27,7 @@ type IWalletCache interface {
 func NewWalletCache(cacheEngine ICacheEngine, exp time.Duration) IWalletCache {
 	cE = cacheEngine
 	ctx = context.Background()
-	return &walletCache{exp}
+	return &walletCache{exp * time.Second}
 }
 
 func (wC *walletCache) Set(key int, value *model.Wallet) error {
