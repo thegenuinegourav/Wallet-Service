@@ -9,28 +9,18 @@ import (
 )
 
 type redisCache struct {
-	host string
+	host     string
 	password string
-	db int
+	db       int
+	client   *redis.Client
+	once     sync.Once
 }
 
-var (
-	rC 			*redisCache
-	rCOnce 		sync.Once
-	rClient 	*redis.Client
-	rOnce 		sync.Once
-)
-
-// Making muxRouter instance as singleton
+// Not making this singleton coz we might need to add different db server on redis
 func NewCache(host string, password string, db int) ICacheEngine {
-	if rC == nil {
-		rCOnce.Do(func() {
-			rC = &redisCache{
-				host: host, password: password, db : db,
-			}
-		})
+	return &redisCache{
+		host: host, password: password, db : db,
 	}
-	return rC
 }
 
 func InitRedisClient(r *redisCache) {
@@ -39,27 +29,27 @@ func InitRedisClient(r *redisCache) {
 		Password: r.password,
 		DB:       r.db,
 	})
-	rClient = rdb
+	r.client = rdb
 }
 
-// Making sure redisCache only initialise once as singleton
+// Making sure redisCache only initialise once as singleton for single rediscache instance
 func (r *redisCache) GetCacheClient() *redis.Client {
-	if rClient == nil {
-		rOnce.Do(func() {
+	if r.client == nil {
+		r.once.Do(func() {
 			InitRedisClient(r)
 		})
 	}
-	return rClient
+	return r.client
 }
 
 func (r *redisCache) CheckConnection() error {
-	pong, err := rClient.Ping(context.Background()).Result()
+	pong, err := r.client.Ping(context.Background()).Result()
 	if err != nil {
 		log.Println("Redis connection failed, error : ", err)
 		return err
 	}
 	fmt.Println(pong, err)
-	log.Println("Redis connection running on port 6379")
+	log.Printf("Redis DB %d connection running on port 6379\n", r.db)
 	// Output: PONG <nil>
 	return nil
 }
