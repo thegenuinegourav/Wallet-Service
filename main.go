@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/WalletService/cache"
+	config "github.com/WalletService/config"
 	"github.com/WalletService/controller"
 	"github.com/WalletService/db"
 	router "github.com/WalletService/http"
@@ -9,10 +11,13 @@ import (
 	"github.com/WalletService/scheduler"
 	"github.com/WalletService/service"
 	"github.com/jinzhu/gorm"
+	"log"
 	"net/http"
+	"os"
 )
 
 var (
+	c 		   config.Config
 	httpRouter router.IRouter
 	gormDb     db.IDatabaseEngine
 	gDb        *gorm.DB
@@ -43,33 +48,48 @@ var (
 )
 
 func main() {
+	initConfig()
 	httpRouter = router.NewMuxRouter()
 	httpRouter.ADDVERSION("/api/v1")
 	gormDb = db.NewGormDatabase()
-	gDb = gormDb.GetDatabase()
+	gDb = gormDb.GetDatabase(c.Database)
 	gormDb.RunMigration()
 	initCachingLayer()
 	initUserServiceContainer()
 	initWalletServiceContainer()
 	initTransactionServiceContainer()
 	initCron()
-	httpRouter.SERVE("8080")
+	httpRouter.SERVE(c.App.Port)
+}
+
+func initConfig() {
+	file, err := os.Open("./config.json")
+	if err != nil {
+		log.Printf("No ./config.json file found!! Terminating the server, error: %s\n", err.Error())
+		panic("No config file found! Error : " + err.Error())
+	}
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&c)
+	if err != nil {
+		log.Printf("Error occurred while decoding json to config model, error: %s\n", err.Error())
+		panic(err.Error())
+	}
 }
 
 func initCachingLayer() {
-	cacheEngine := cache.NewCache("localhost:6379", "", 0)
+	cacheEngine := cache.NewCache(c.Cache, c.Cache.Wallet.Db)
 	cacheEngine.GetCacheClient()
 	if err := cacheEngine.CheckConnection(); err != nil {
 		panic(err)
 	}
-	walletCache = cache.NewWalletCache(cacheEngine, 0)		// 0 means no expiry date
+	walletCache = cache.NewWalletCache(cacheEngine, c.Cache.Wallet)		// 0 means no expiry date
 
-	cacheEngine2 := cache.NewCache("localhost:6379", "", 1)
+	cacheEngine2 := cache.NewCache(c.Cache, c.Cache.Idempotent.Db)
 	cacheEngine2.GetCacheClient()
 	if err := cacheEngine2.CheckConnection(); err != nil {
 		panic(err)
 	}
-	transactionIdempotentCache = cache.NewTransactionIdempotentCache(cacheEngine2, 12)
+	transactionIdempotentCache = cache.NewTransactionIdempotentCache(cacheEngine2, c.Cache.Idempotent)
 }
 
 func initUserServiceContainer() {

@@ -3,6 +3,7 @@ package cache
 import (
 	"context"
 	"fmt"
+	"github.com/WalletService/config"
 	"github.com/go-redis/redis/v8"
 	"log"
 	"sync"
@@ -17,9 +18,11 @@ type redisCache struct {
 }
 
 // Not making this singleton coz we might need to add different db server on redis
-func NewCache(host string, password string, db int) ICacheEngine {
+func NewCache(config config.Cache, db int) ICacheEngine {
 	return &redisCache{
-		host: host, password: password, db : db,
+		host: config.Server + ":" + config.Port,
+		password: config.Password,
+		db : db,
 	}
 }
 

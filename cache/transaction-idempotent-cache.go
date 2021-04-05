@@ -3,6 +3,7 @@ package cache
 import (
 	"encoding/json"
 	"errors"
+	"github.com/WalletService/config"
 	"github.com/WalletService/model"
 	"github.com/go-redis/redis/v8"
 	"log"
@@ -26,10 +27,10 @@ type ITransactionIdempotentCache interface {
 	Get(key string) *model.Transaction
 }
 
-func NewTransactionIdempotentCache(cacheEngine ICacheEngine, exp time.Duration) ITransactionIdempotentCache {
+func NewTransactionIdempotentCache(cacheEngine ICacheEngine, config config.Property) ITransactionIdempotentCache {
 	tICE = cacheEngine
 	tICtx = context.Background()
-	return &transactionIdempotentCache{exp * time.Hour}
+	return &transactionIdempotentCache{time.Duration(config.Expiry) * time.Hour}
 }
 
 func (tIC *transactionIdempotentCache) GetIdempotencyKey(r *http.Request) (string, error) {

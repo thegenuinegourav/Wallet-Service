@@ -2,6 +2,7 @@ package cache
 
 import (
 	"encoding/json"
+	"github.com/WalletService/config"
 	"github.com/WalletService/model"
 	"github.com/go-redis/redis/v8"
 	"log"
@@ -24,10 +25,10 @@ type IWalletCache interface {
 	Get(key int) *model.Wallet
 }
 
-func NewWalletCache(cacheEngine ICacheEngine, exp time.Duration) IWalletCache {
+func NewWalletCache(cacheEngine ICacheEngine, config config.Property) IWalletCache {
 	cE = cacheEngine
 	ctx = context.Background()
-	return &walletCache{exp * time.Second}
+	return &walletCache{time.Duration(config.Expiry) * time.Hour}
 }
 
 func (wC *walletCache) Set(key int, value *model.Wallet) error {

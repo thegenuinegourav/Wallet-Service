@@ -1,0 +1,26 @@
+{
+  "app" : {
+    "port": "8080"
+  },
+  "database":{
+    "engine": "mysql",
+    "server": "localhost",
+    "port": "3306",
+    "user": "root",
+    "password": "root",
+    "name" : "WAAS"
+  },
+  "cache": {
+    "server": "localhost",
+    "port": "6379",
+    "password": "",
+    "wallet": {
+      "db" : 0,
+      "expiryInHours": 0
+    },
+    "idempotency": {
+      "db": 1,
+      "expiryInHours": 12
+    }
+  }
+}

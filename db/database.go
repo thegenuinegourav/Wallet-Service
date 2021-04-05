@@ -1,9 +1,12 @@
 package db
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/WalletService/config"
+	"github.com/jinzhu/gorm"
+)
 
 type IDatabaseEngine interface {
 	// TODO read from config file
-	GetDatabase() *gorm.DB
+	GetDatabase(config config.Database) *gorm.DB
 	RunMigration()
 }
