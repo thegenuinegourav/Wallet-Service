@@ -11,6 +11,7 @@ import (
 	"github.com/WalletService/scheduler"
 	"github.com/WalletService/service"
 	"github.com/jinzhu/gorm"
+	_ "github.com/WalletService/docs" // This line is necessary for go-swagger to find your docs!
 	"log"
 	"net/http"
 	"os"

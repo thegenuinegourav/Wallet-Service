@@ -1,0 +1,807 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "Documentation of our awesome API.",
+    "title": "awesome.",
+    "version": "1.0.0"
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "paths": {
+    "/api/v1/transaction": {
+      "get": {
+        "description": "Fetch all transactions",
+        "tags": [
+          "Transaction"
+        ],
+        "operationId": "getTransactionId",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/getTransactionResponse"
+          },
+          "400": {
+            "$ref": "#/responses/error400"
+          },
+          "404": {
+            "$ref": "#/responses/error404"
+          },
+          "500": {
+            "$ref": "#/responses/error500"
+          }
+        }
+      }
+    },
+    "/api/v1/transaction/active": {
+      "get": {
+        "description": "Fetch all active transactions",
+        "tags": [
+          "Transaction"
+        ],
+        "operationId": "activeTransactionParam",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/getTransactionResponse"
+          },
+          "400": {
+            "$ref": "#/responses/error400"
+          },
+          "404": {
+            "$ref": "#/responses/error404"
+          },
+          "500": {
+            "$ref": "#/responses/error500"
+          }
+        }
+      },
+      "put": {
+        "description": "Mark all active transaction as inactive",
+        "tags": [
+          "Transaction"
+        ],
+        "operationId": "putTransactionParam",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/putTransactionResponse"
+          },
+          "400": {
+            "$ref": "#/responses/error400"
+          },
+          "404": {
+            "$ref": "#/responses/error404"
+          },
+          "500": {
+            "$ref": "#/responses/error500"
+          }
+        }
+      }
+    },
+    "/api/v1/transaction/{ID}": {
+      "get": {
+        "description": "Fetch transaction for given id",
+        "tags": [
+          "Transaction"
+        ],
+        "operationId": "getTransactionIDParam",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ID",
+            "description": "Transaction ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/transactionResponse"
+          },
+          "400": {
+            "$ref": "#/responses/error400"
+          },
+          "404": {
+            "$ref": "#/responses/error404"
+          },
+          "500": {
+            "$ref": "#/responses/error500"
+          }
+        }
+      }
+    },
+    "/api/v1/user": {
+      "get": {
+        "description": "Fetch all users",
+        "tags": [
+          "User"
+        ],
+        "operationId": "getUserId",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/getUserResponse"
+          },
+          "400": {
+            "$ref": "#/responses/error400"
+          },
+          "404": {
+            "$ref": "#/responses/error404"
+          },
+          "500": {
+            "$ref": "#/responses/error500"
+          }
+        }
+      },
+      "post": {
+        "description": "Create user",
+        "tags": [
+          "User"
+        ],
+        "operationId": "postUserParam",
+        "parameters": [
+          {
+            "description": "User Request Body.",
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UserRequestBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/userResponse"
+          },
+          "400": {
+            "$ref": "#/responses/error400"
+          },
+          "404": {
+            "$ref": "#/responses/error404"
+          },
+          "500": {
+            "$ref": "#/responses/error500"
+          }
+        }
+      }
+    },
+    "/api/v1/user/{ID}": {
+      "get": {
+        "description": "Get user details for given id",
+        "tags": [
+          "User"
+        ],
+        "operationId": "getUserParam",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ID",
+            "description": "User ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/userResponse"
+          },
+          "400": {
+            "$ref": "#/responses/error400"
+          },
+          "404": {
+            "$ref": "#/responses/error404"
+          },
+          "500": {
+            "$ref": "#/responses/error500"
+          }
+        }
+      },
+      "put": {
+        "description": "Update user details for given id",
+        "tags": [
+          "User"
+        ],
+        "operationId": "putUserParam",
+        "parameters": [
+          {
+            "description": "User Request Body.",
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UserRequestBody"
+            }
+          },
+          {
+            "type": "string",
+            "x-go-name": "ID",
+            "description": "User ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/userResponse"
+          },
+          "400": {
+            "$ref": "#/responses/error400"
+          },
+          "404": {
+            "$ref": "#/responses/error404"
+          },
+          "500": {
+            "$ref": "#/responses/error500"
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete user with given id",
+        "tags": [
+          "User"
+        ],
+        "operationId": "delUserParam",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ID",
+            "description": "User ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/delUserResponse"
+          },
+          "400": {
+            "$ref": "#/responses/error400"
+          },
+          "404": {
+            "$ref": "#/responses/error404"
+          },
+          "500": {
+            "$ref": "#/responses/error500"
+          }
+        }
+      }
+    },
+    "/api/v1/user/{ID}/wallet": {
+      "get": {
+        "description": "Get all wallet details for given user id",
+        "tags": [
+          "Wallet"
+        ],
+        "operationId": "getWalletParam2",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ID",
+            "description": "User ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/getWalletResponse"
+          },
+          "400": {
+            "$ref": "#/responses/error400"
+          },
+          "404": {
+            "$ref": "#/responses/error404"
+          },
+          "500": {
+            "$ref": "#/responses/error500"
+          }
+        }
+      },
+      "post": {
+        "description": "Create wallet for given user id",
+        "tags": [
+          "Wallet"
+        ],
+        "operationId": "postWalletParam",
+        "parameters": [
+          {
+            "description": "Wallet Request Body.",
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/WalletRequestBody"
+            }
+          },
+          {
+            "type": "string",
+            "x-go-name": "ID",
+            "description": "User ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/walletResponse"
+          },
+          "400": {
+            "$ref": "#/responses/error400"
+          },
+          "404": {
+            "$ref": "#/responses/error404"
+          },
+          "500": {
+            "$ref": "#/responses/error500"
+          }
+        }
+      }
+    },
+    "/api/v1/wallet/{ID}": {
+      "get": {
+        "description": "Get wallet details for given wallet id",
+        "tags": [
+          "Wallet"
+        ],
+        "operationId": "getWalletParam",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ID",
+            "description": "Wallet ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/walletResponse"
+          },
+          "400": {
+            "$ref": "#/responses/error400"
+          },
+          "404": {
+            "$ref": "#/responses/error404"
+          },
+          "500": {
+            "$ref": "#/responses/error500"
+          }
+        }
+      }
+    },
+    "/api/v1/wallet/{ID}/block": {
+      "post": {
+        "description": "Block wallet with given id",
+        "tags": [
+          "Wallet"
+        ],
+        "operationId": "blockWalletParam",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ID",
+            "description": "Wallet ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/blockWalletResponse"
+          },
+          "400": {
+            "$ref": "#/responses/error400"
+          },
+          "404": {
+            "$ref": "#/responses/error404"
+          },
+          "500": {
+            "$ref": "#/responses/error500"
+          }
+        }
+      }
+    },
+    "/api/v1/wallet/{ID}/transaction": {
+      "get": {
+        "description": "Fetch transaction associated with given wallet id",
+        "tags": [
+          "Transaction"
+        ],
+        "operationId": "getTransactionParam",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ID",
+            "description": "Wallet ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/getTransactionResponse"
+          },
+          "400": {
+            "$ref": "#/responses/error400"
+          },
+          "404": {
+            "$ref": "#/responses/error404"
+          },
+          "500": {
+            "$ref": "#/responses/error500"
+          }
+        }
+      },
+      "post": {
+        "description": "Create transaction for given wallet id",
+        "tags": [
+          "Transaction"
+        ],
+        "operationId": "postTransactionParam",
+        "parameters": [
+          {
+            "description": "Transaction Request Body.",
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/TransactionRequestBody"
+            }
+          },
+          {
+            "type": "string",
+            "x-go-name": "ID",
+            "description": "Wallet ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/transactionResponse"
+          },
+          "400": {
+            "$ref": "#/responses/error400"
+          },
+          "404": {
+            "$ref": "#/responses/error404"
+          },
+          "500": {
+            "$ref": "#/responses/error500"
+          }
+        }
+      }
+    },
+    "/api/v1/wallet/{ID}/unblock": {
+      "post": {
+        "description": "Block wallet with given id",
+        "tags": [
+          "Wallet"
+        ],
+        "operationId": "unblockWalletParam",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ID",
+            "description": "Wallet ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/blockWalletResponse"
+          },
+          "400": {
+            "$ref": "#/responses/error400"
+          },
+          "404": {
+            "$ref": "#/responses/error404"
+          },
+          "500": {
+            "$ref": "#/responses/error500"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "BlockMessage": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/WalletService/docs"
+    },
+    "DeleteMessage": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/WalletService/docs"
+    },
+    "ErrorMessage": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "x-go-name": "Error"
+        }
+      },
+      "x-go-package": "github.com/WalletService/docs"
+    },
+    "Transaction": {
+      "type": "object",
+      "properties": {
+        "Active": {
+          "type": "boolean"
+        },
+        "CreatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "DeletedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ID": {
+          "type": "integer",
+          "format": "uint64"
+        },
+        "TxnType": {
+          "type": "string"
+        },
+        "UpdatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "Wallet": {
+          "$ref": "#/definitions/Wallet"
+        },
+        "amount": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "Amount"
+        },
+        "walletId": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "WalletID"
+        }
+      },
+      "x-go-package": "github.com/WalletService/model"
+    },
+    "TransactionRequestBody": {
+      "type": "object",
+      "properties": {
+        "TxnType": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "Amount"
+        }
+      },
+      "x-go-package": "github.com/WalletService/docs"
+    },
+    "UpdateMessage": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "x-go-name": "Message"
+        }
+      },
+      "x-go-package": "github.com/WalletService/docs"
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "CreatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "DeletedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ID": {
+          "type": "integer",
+          "format": "uint64"
+        },
+        "UpdatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "email": {
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "mobile": {
+          "type": "string",
+          "x-go-name": "Mobile"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/WalletService/model"
+    },
+    "UserRequestBody": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "mobile": {
+          "type": "string",
+          "x-go-name": "Mobile"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/WalletService/docs"
+    },
+    "Wallet": {
+      "type": "object",
+      "properties": {
+        "CreatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "DeletedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ID": {
+          "type": "integer",
+          "format": "uint64"
+        },
+        "UpdatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "User": {
+          "$ref": "#/definitions/User"
+        },
+        "balance": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "Balance"
+        },
+        "currency": {
+          "type": "string",
+          "x-go-name": "Currency"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "github.com/WalletService/model"
+    },
+    "WalletRequestBody": {
+      "type": "object",
+      "properties": {
+        "balance": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "Balance"
+        },
+        "currency": {
+          "type": "string",
+          "x-go-name": "Currency"
+        }
+      },
+      "x-go-package": "github.com/WalletService/docs"
+    }
+  },
+  "responses": {
+    "blockWalletResponse": {
+      "description": "Wallet Status Response",
+      "schema": {
+        "$ref": "#/definitions/BlockMessage"
+      }
+    },
+    "delUserResponse": {
+      "description": "User delete Response",
+      "schema": {
+        "$ref": "#/definitions/DeleteMessage"
+      }
+    },
+    "error400": {
+      "description": "Bad Request error Response | Validation error message or invalid json",
+      "schema": {
+        "$ref": "#/definitions/ErrorMessage"
+      }
+    },
+    "error404": {
+      "description": "Not Found error Response | Page not found or record not found",
+      "schema": {
+        "$ref": "#/definitions/ErrorMessage"
+      }
+    },
+    "error500": {
+      "description": "Internal server error Response | server is down or db constraint errors",
+      "schema": {
+        "$ref": "#/definitions/ErrorMessage"
+      }
+    },
+    "getTransactionResponse": {
+      "description": "Transaction Response",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/Transaction"
+        }
+      }
+    },
+    "getUserResponse": {
+      "description": "User Response",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/User"
+        }
+      }
+    },
+    "getWalletResponse": {
+      "description": "Wallet Response",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/Wallet"
+        }
+      }
+    },
+    "putTransactionResponse": {
+      "description": "Transaction Update Response",
+      "schema": {
+        "$ref": "#/definitions/UpdateMessage"
+      }
+    },
+    "transactionResponse": {
+      "description": "Transaction Response",
+      "schema": {
+        "$ref": "#/definitions/Transaction"
+      }
+    },
+    "userResponse": {
+      "description": "User Response",
+      "schema": {
+        "$ref": "#/definitions/User"
+      }
+    },
+    "walletResponse": {
+      "description": "Wallet Response",
+      "schema": {
+        "$ref": "#/definitions/Wallet"
+      }
+    }
+  }
+}

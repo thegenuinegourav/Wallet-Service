@@ -2,3 +2,5 @@
 WalletService
 report.csv
 main
+vendor/
+.DS_Store
