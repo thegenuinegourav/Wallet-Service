@@ -15,7 +15,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 )
 
 var (
@@ -23,6 +22,11 @@ var (
 	httpRouter router.IRouter
 	gormDb     db.IDatabaseEngine
 	gDb        *gorm.DB
+)
+
+// Cron
+var (
+	cronCache  cache.ICronCache
 	reportCron scheduler.IReportCron
 )
 
@@ -50,7 +54,6 @@ var (
 )
 
 func main() {
-	waitForDockerConf()
 	initConfig()
 	httpRouter = router.NewMuxRouter()
 	httpRouter.ADDVERSION("/api/v1")
@@ -63,12 +66,6 @@ func main() {
 	initTransactionServiceContainer()
 	initCron()
 	httpRouter.SERVE(c.App.Port)
-}
-
-func waitForDockerConf() {
-	log.Println("Waiting for docker db & cache to register...............")
-	time.Sleep(time.Duration(10)*time.Second)
-	log.Println("Waiting completed!")
 }
 
 func initConfig() {
@@ -99,6 +96,13 @@ func initCachingLayer() {
 		panic(err)
 	}
 	transactionIdempotentCache = cache.NewTransactionIdempotentCache(cacheEngine2, c.Cache.Idempotent)
+
+	cacheEngine3 := cache.NewCache(c.Cache, c.Cache.CronLock.Db)
+	cacheEngine3.GetCacheClient()
+	if err := cacheEngine3.CheckConnection(); err != nil {
+		panic(err)
+	}
+	cronCache = cache.NewCronCache(cacheEngine3, c.Cache.CronLock)
 }
 
 func initUserServiceContainer() {
@@ -143,6 +147,6 @@ func initTransactionServiceContainer() {
 }
 
 func initCron() {
-	reportCron = scheduler.NewReportCron(transactionService)
+	reportCron = scheduler.NewReportCron(transactionService, cronCache)
 	reportCron.StartReportCron()
 }

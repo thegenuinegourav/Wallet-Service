@@ -23,11 +23,17 @@ type Cache struct {
 	Server		string		`json:"server"`
 	Port 		string		`json:"port"`
 	Password 	string 		`json:"password"`
-	Wallet		Property 	`json:"wallet"`
-	Idempotent 	Property 	`json:"idempotency"`
+	Wallet		PropertyH 	`json:"wallet"`
+	Idempotent 	PropertyH 	`json:"idempotency"`
+	CronLock    PropertyM   `json:"cronLock"`
 }
 
-type Property struct {
+type PropertyH struct {
 	Db		int		`json:"db"`
 	Expiry 	int	`json:"expiryInHours"`
+}
+
+type PropertyM struct {
+	Db		int		`json:"db"`
+	Expiry 	int	`json:"expiryInMinutes"`
 }

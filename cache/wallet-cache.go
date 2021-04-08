@@ -25,7 +25,7 @@ type IWalletCache interface {
 	Get(key int) *model.Wallet
 }
 
-func NewWalletCache(cacheEngine ICacheEngine, config config.Property) IWalletCache {
+func NewWalletCache(cacheEngine ICacheEngine, config config.PropertyH) IWalletCache {
 	cE = cacheEngine
 	ctx = context.Background()
 	return &walletCache{time.Duration(config.Expiry) * time.Hour}

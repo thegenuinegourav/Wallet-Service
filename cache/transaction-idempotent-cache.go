@@ -27,7 +27,7 @@ type ITransactionIdempotentCache interface {
 	Get(key string) *model.Transaction
 }
 
-func NewTransactionIdempotentCache(cacheEngine ICacheEngine, config config.Property) ITransactionIdempotentCache {
+func NewTransactionIdempotentCache(cacheEngine ICacheEngine, config config.PropertyH) ITransactionIdempotentCache {
 	tICE = cacheEngine
 	tICtx = context.Background()
 	return &transactionIdempotentCache{time.Duration(config.Expiry) * time.Hour}

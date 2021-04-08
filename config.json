@@ -21,6 +21,10 @@
     "idempotency": {
       "db": 1,
       "expiryInHours": 12
+    },
+    "cronLock": {
+      "db": 2,
+      "expiryInMinutes": 1
     }
   }
 }
