@@ -6,15 +6,16 @@ import (
 	config "github.com/WalletService/config"
 	"github.com/WalletService/controller"
 	"github.com/WalletService/db"
+	_ "github.com/WalletService/docs" // This line is necessary for go-swagger to find your docs!
 	router "github.com/WalletService/http"
 	"github.com/WalletService/repository"
 	"github.com/WalletService/scheduler"
 	"github.com/WalletService/service"
 	"github.com/jinzhu/gorm"
-	_ "github.com/WalletService/docs" // This line is necessary for go-swagger to find your docs!
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 var (
@@ -49,6 +50,7 @@ var (
 )
 
 func main() {
+	waitForDockerConf()
 	initConfig()
 	httpRouter = router.NewMuxRouter()
 	httpRouter.ADDVERSION("/api/v1")
@@ -61,6 +63,12 @@ func main() {
 	initTransactionServiceContainer()
 	initCron()
 	httpRouter.SERVE(c.App.Port)
+}
+
+func waitForDockerConf() {
+	log.Println("Waiting for docker db & cache to register...............")
+	time.Sleep(time.Duration(10)*time.Second)
+	log.Println("Waiting completed!")
 }
 
 func initConfig() {

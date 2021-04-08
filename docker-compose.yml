@@ -1,0 +1,49 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile
+    container_name: app.dev
+    volumes:
+      - .:/go/src/wallet-service
+    working_dir: /go/src/wallet-service
+    command: go run main.go
+    ports:
+      - "3000:3000" # http
+    depends_on:
+      - db
+      - redis
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+  db:
+    build:
+      context: .
+      dockerfile: docker/db/Dockerfile
+    image: my-mysql:1.0
+    container_name: database.dev
+    hostname: database.dev
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: WAAS
+    # sync folders. MySQL data is stored outside container so that rebuilding doesn't clear db.
+    # folder is at workspace root.
+    volumes:
+      #- ../../_local_mysql_data:/var/lib/mysql
+      #- ./shopee.sql:/tmp/shopee.sql
+      #- ./import.sh:/tmp/import.sh
+#      - ./mysql_init:/docker-entrypoint-initdb.d
+      - waas-data:/var/lib/mysql
+  redis:
+    image: "redis:alpine" # Use a public Redis image to build the redis service
+    restart: unless-stopped
+    container_name: cache.dev
+    ports:
+      - "6379:6379"
+
+volumes:
+  waas-data:

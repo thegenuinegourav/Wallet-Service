@@ -1,17 +1,17 @@
 {
   "app" : {
-    "port": "8080"
+    "port": "3000"
   },
   "database":{
     "engine": "mysql",
-    "server": "localhost",
+    "server": "database.dev",
     "port": "3306",
     "user": "root",
     "password": "root",
     "name" : "WAAS"
   },
   "cache": {
-    "server": "localhost",
+    "server": "redis",
     "port": "6379",
     "password": "",
     "wallet": {
