@@ -6,7 +6,7 @@ import (
 	config "github.com/WalletService/config"
 	"github.com/WalletService/controller"
 	"github.com/WalletService/db"
-	_ "github.com/WalletService/docs" // This line is necessary for go-swagger to find your docs!
+	_ "github.com/WalletService/docs" // This line is necessary for go-swagger to find docs!
 	router "github.com/WalletService/http"
 	"github.com/WalletService/repository"
 	"github.com/WalletService/scheduler"
