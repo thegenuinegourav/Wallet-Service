@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"github.com/WalletService/mocks"
 	"github.com/WalletService/model"
 	"github.com/gorilla/mux"
@@ -14,6 +15,7 @@ import (
 
 func TestGetUser(t *testing.T) {
 	userService := new(mocks.IUserService)
+	userController := NewUserController(userService)
 
 	t.Logf("Running Positive Case with valid output..........")
 	expectedResult1 := model.User{
@@ -22,7 +24,6 @@ func TestGetUser(t *testing.T) {
 		Mobile: "test_mobile",
 	}
 	userService.On("GetUserService", 1).Return(&expectedResult1, nil)
-	userController := NewUserController(userService)
 	req := httptest.NewRequest("GET", "http://localhost:8080/api/v1/user/1", nil)
 	w := httptest.NewRecorder()
 	r := mux.NewRouter()
@@ -62,6 +63,7 @@ func TestGetUser(t *testing.T) {
 
 func TestGetUsers(t *testing.T) {
 	userService := new(mocks.IUserService)
+	userController := NewUserController(userService)
 
 	t.Logf("Running Positive Case with valid output..........")
 	expectedResult1 := []model.User{
@@ -71,8 +73,7 @@ func TestGetUsers(t *testing.T) {
 		Mobile: "test_mobile",
 		},
 	}
-	userService.On("GetUsersService").Return(&expectedResult1, nil)
-	userController := NewUserController(userService)
+	userService.On("GetUsersService").Return(&expectedResult1, nil).Once()
 	req := httptest.NewRequest("GET", "http://localhost:8080/api/v1/user", nil)
 	w := httptest.NewRecorder()
 	r := mux.NewRouter()
@@ -83,8 +84,8 @@ func TestGetUsers(t *testing.T) {
 	assert.Equal(t, expectedResult1,actualResult1)
 
 	t.Logf("Running Negative Case with error of Internal Server Error...........")
-	expectedResult2 := map[string]string{}
-	userService.On("GetUserService", 2).Return(nil, sql.ErrNoRows)
+	expectedResult2 := map[string]string{"error":"something went wrong"}
+	userService.On("GetUsersService").Return(nil, errors.New("something went wrong")).Once()
 	req = httptest.NewRequest("GET", "http://localhost:8080/api/v1/user", nil)
 	w = httptest.NewRecorder()
 	r = mux.NewRouter()
@@ -97,6 +98,7 @@ func TestGetUsers(t *testing.T) {
 
 func TestPostUser(t *testing.T) {
 	userService := new(mocks.IUserService)
+	userController := NewUserController(userService)
 
 	t.Logf("Running Positive Case with valid output..........")
 	expectedResult1 := model.User{
@@ -105,7 +107,6 @@ func TestPostUser(t *testing.T) {
 		Mobile: "test_mobile",
 	}
 	userService.On("PostUserService", &expectedResult1).Return(&expectedResult1, nil)
-	userController := NewUserController(userService)
 	body,_ := json.Marshal(&expectedResult1)
 	req := httptest.NewRequest("POST", "http://localhost:8080/api/v1/user", bytes.NewBuffer(body))
 	w := httptest.NewRecorder()
@@ -132,6 +133,7 @@ func TestPostUser(t *testing.T) {
 
 func TestPutUser(t *testing.T) {
 	userService := new(mocks.IUserService)
+	userController := NewUserController(userService)
 
 	t.Logf("Running Positive Case with valid output..........")
 	expectedResult1 := model.User{
@@ -140,7 +142,6 @@ func TestPutUser(t *testing.T) {
 		Mobile: "test_mobile",
 	}
 	userService.On("UpdateUserService", 1, &expectedResult1).Return(&expectedResult1, nil)
-	userController := NewUserController(userService)
 	body,_ := json.Marshal(&expectedResult1)
 	req := httptest.NewRequest("PUT", "http://localhost:8080/api/v1/user/1", bytes.NewBuffer(body))
 	w := httptest.NewRecorder()
@@ -196,13 +197,13 @@ func TestPutUser(t *testing.T) {
 
 func TestDeleteUser(t *testing.T) {
 	userService := new(mocks.IUserService)
+	userController := NewUserController(userService)
 
 	t.Logf("Running Positive Case with valid output..........")
 	expectedResult1 := map[string]string{
 		"result" : "success",
 	}
 	userService.On("DeleteUserService", 1).Return(nil)
-	userController := NewUserController(userService)
 	req := httptest.NewRequest("DELETE", "http://localhost:8080/api/v1/user/1", nil)
 	w := httptest.NewRecorder()
 	r := mux.NewRouter()
