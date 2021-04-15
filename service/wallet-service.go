@@ -81,7 +81,7 @@ func (walletService *walletService) BlockWalletService(id int)  error {
 		return errors.New("This wallet is already blocked. Can't block blocked wallet.")
 	}
 	wallet.IsBlock=true
-	_, err = walletRepository.UpdateWallet(wallet)
+	_, err = walletService.UpdateWalletService(wallet)
 	return err
 }
 
@@ -94,7 +94,7 @@ func (walletService *walletService) UnBlockWalletService(id int)  error {
 		return errors.New("This wallet is already unblocked. Can't unblock unblocked wallet.")
 	}
 	wallet.IsBlock=false
-	_, err = walletRepository.UpdateWallet(wallet)
+	_, err = walletService.UpdateWalletService(wallet)
 	return err
 }
 

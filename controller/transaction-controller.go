@@ -118,7 +118,6 @@ func (transactionController *transactionController) PostTransaction(w http.Respo
 		return
 	}
 	defer r.Body.Close()
-	// TODO Add concurrency to post multiple transactions at the same time on the same wallet
 	res, err := transactionService.PostTransactionService(&transaction, id)
 	if err != nil {
 		log.Printf("Not able to post Transaction : %s" , err)
