@@ -697,6 +697,10 @@
           "type": "string",
           "x-go-name": "Currency"
         },
+        "isBlocked": {
+          "type": "boolean",
+          "x-go-name": "IsBlock"
+        },
         "userId": {
           "type": "integer",
           "format": "uint64",
